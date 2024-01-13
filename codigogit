@@ -1,0 +1,122 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_PRODUCTOS 100
+
+void ingresarProductos(int *numProductos, int *productos, char nombres[][20], float *precios, int *cantidades);
+void mostrarProductos(int numProductos, int *productos, char nombres[][20], float *precios, int *cantidades);
+void modificarProducto(int numProductos, int *productos, char nombres[][20], float *precios, int *cantidades);
+void guardarProductos(int numProductos, int *productos, char nombres[][20], float *precios, int *cantidades);
+void leerProductos(int *numProductos, int *productos, char nombres[][20], float *precios, int *cantidades);
+
+int main(void) {
+  int numProductos = 0;
+  int productos[MAX_PRODUCTOS];
+  char nombres[MAX_PRODUCTOS][20];
+  float precios[MAX_PRODUCTOS];
+  int cantidades[MAX_PRODUCTOS];
+
+  int opcion;
+  do {
+    printf("1. Ingresar productos\n");
+    printf("2. Mostrar productos\n");
+    printf("3. Buscar y modificar producto\n");
+    printf("4. Salir\n");
+    printf("Ingrese una opción: ");
+    scanf("%d", &opcion);
+
+    switch (opcion) {
+      case 1:
+        ingresarProductos(&numProductos, productos, nombres, precios, cantidades);
+        guardarProductos(numProductos, productos, nombres, precios, cantidades);
+        break;
+      case 2:
+        leerProductos(&numProductos, productos, nombres, precios, cantidades);
+        mostrarProductos(numProductos, productos, nombres, precios, cantidades);
+        break;
+      case 3:
+        leerProductos(&numProductos, productos, nombres, precios, cantidades);
+        modificarProducto(numProductos, productos, nombres, precios, cantidades);
+        guardarProductos(numProductos, productos, nombres, precios, cantidades);
+        break;
+      case 4:
+        printf("Saliendo...\n");
+        break;
+      default:
+        printf("Opción no válida.\n");
+        break;
+    }
+  } while (opcion != 4);
+
+  return 0;
+}
+
+
+void ingresarProductos(int *numProductos, int *productos, char nombres[][20], float *precios, int *cantidades) {
+  printf("Ingrese el número de productos: ");
+  scanf("%d", numProductos);
+  for (int i = 0; i < *numProductos; i++) {
+    printf("Ingrese el nombre del producto %d: ", i + 1);
+    scanf("%s", nombres[i]);
+    printf("Ingrese el precio del producto %d: ", i + 1);
+    scanf("%f", &precios[i]);
+    printf("Ingrese la cantidad del producto %d: ", i + 1);
+    scanf("%d", &cantidades[i]);
+    productos[i] = i + 1;
+  }
+}
+
+void mostrarProductos(int numProductos, int *productos, char nombres[][20], float *precios, int *cantidades) {
+  printf("%-10s %-20s %-10s %-10s\n", "Producto", "Nombre", "Precio", "Cantidad");
+  for (int i = 0; i < numProductos; i++) {
+    printf("%-10d %-20s %-10.2f %-10d\n", productos[i], nombres[i], precios[i], cantidades[i]);
+  }
+}
+
+void modificarProducto(int numProductos, int *productos, char nombres[][20], float *precios, int *cantidades) {
+  int producto;
+  printf("Ingrese el número del producto a modificar: ");
+  scanf("%d", &producto);
+  int encontrado = 0;
+  for (int i = 0; i < numProductos; i++) {
+    if (productos[i] == producto) {
+      printf("%-10s %-20s %-10s %-10s\n", "Producto", "Nombre", "Precio", "Cantidad");
+      printf("%-10d %-20s %-10.2f %-10d\n", productos[i], nombres[i], precios[i], cantidades[i]);
+      printf("Ingrese el nuevo precio del producto: ");
+      scanf("%f", &precios[i]);
+      printf("Ingrese la nueva cantidad del producto: ");
+      scanf("%d", &cantidades[i]);
+      encontrado = 1;
+      break;
+    }
+  }
+  if (!encontrado) {
+    printf("Producto no encontrado.\n");
+  }
+}
+
+void guardarProductos(int numProductos, int *productos, char nombres[][20], float *precios, int *cantidades) {
+  FILE *archivo = fopen("productos.txt", "w");
+  fprintf(archivo, "%-10s %-20s %-10s %-10s\n", "Producto", "Nombre", "Precio", "Cantidad");
+  for (int i = 0; i < numProductos; i++) {
+    fprintf(archivo, "%-10d %-20s %-10.2f %-10d\n", productos[i], nombres[i], precios[i], cantidades[i]);
+  }
+  fclose(archivo);
+}
+
+void leerProductos(int *numProductos, int *productos, char nombres[][20], float *precios, int *cantidades) {
+  FILE *archivo = fopen("productos.txt", "r");
+  if (archivo != NULL) {
+    fscanf(archivo, "%*[^\n]\n"); // Leer y descartar la primera línea
+    *numProductos = 0;
+    while (fscanf(archivo, "%d %s %f %d", &productos[*numProductos], nombres[*numProductos], &precios[*numProductos], &cantidades[*numProductos]) == 4) {
+      (*numProductos)++;
+    }
+    fclose(archivo);
+  }
+}
+
+
+
+
